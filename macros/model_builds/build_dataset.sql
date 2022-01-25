@@ -87,7 +87,7 @@
 {%- set enriched_columns = [] %}
 {%- set primary_event_name = sql_graph['primary_event'] %}
 
-{%- set primary_event_dependency = "-- depends_on: "~ref(primary_event) -%}
+
 {%- for metric in metrics %}
 {%- set metric_dependency = "-- depends_on: "~ref(metric) -%}
 {%- endfor %}
