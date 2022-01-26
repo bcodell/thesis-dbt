@@ -33,9 +33,9 @@
     {%- if attributes_list is not none -%}
     '{' ||
         {% for attr in attributes_list -%}
-        '"{{attr}}": "' || {{attr}}{% if not loop.last -%}, ||{% endif %}
+        {% if not loop.first -%}', '{%- endif -%}'"{{attr}}": "' || cast(decode({{attr}}, null, '', {{attr}}) as {{thesis_dbt.type_string}}){% if not loop.last %} ||{% endif %}
         {% endfor -%}
-    '}'
+    || '}'
     {%- else -%}
     cast(null as varchar)
     {%- endif -%}
