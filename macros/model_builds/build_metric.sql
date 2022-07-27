@@ -9,6 +9,7 @@
 {%- set aggfunc = config.require('aggfunc') -%}
 {%- set after_timestamp = config.require('after_timestamp') -%}
 {%- set before_timestamp = config.require('before_timestamp') -%}
+{%- set condition = config.get('condition', default=none) -%}
 
 
 {{"-- depends_on: "~ref(event_stream)}}
