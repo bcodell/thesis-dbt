@@ -1,9 +1,9 @@
 {%- macro parse_attribute(attribute_name, condition) -%}
-    {{ adapter.dispatch('parse_attribute', 'thesis_dbt')(attribute_name) }}
+    {{ adapter.dispatch('parse_attribute', 'thesis_dbt')(attribute_name, condition) }}
 {%- endmacro -%}
 
 
-{%- macro default__parse_attribute(attribute_name) -%}
+{%- macro default__parse_attribute(attribute_name, condition) -%}
 {%- if condition is none -%}
     {%- set condition_str = '' -%}
 {%- else -%}
