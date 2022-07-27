@@ -10,6 +10,7 @@
 {%- set after_timestamp = config.require('after_timestamp') -%}
 {%- set before_timestamp = config.require('before_timestamp') -%}
 {%- set condition = config.get('condition', default=none) -%}
+{%- set backup_value = config.get('backup_value', default=none) -%}
 
 
 {{"-- depends_on: "~ref(event_stream)}}

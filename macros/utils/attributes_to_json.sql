@@ -63,6 +63,6 @@
         {% endfor -%}
     )
     {%- else -%}
-    null::variant
+    null::object
     {%- endif -%}
 {%- endmacro -%}
