@@ -4,6 +4,7 @@
 
 
 {%- macro default__compile_aggfunc(column_name, aggfunc, event_name, table_alias) -%}
+{%- set alias_col = table_alias~'.'~column_name -%}
 {%- if aggfunc in ['first_value', 'last_value'] -%}
 {%- set aggfunc_map = {'first_value': 'min', 'last_value': 'max'} -%}
 {%- set agg = aggfunc_map[aggfunc] -%}
@@ -11,12 +12,14 @@
 ltrim(
             {{agg}}(
                 cast({{table_alias}}.{{event_col}} as varchar)
-                || cast({{table_alias}}.{{column_name}} as varchar)
+                || cast({{alias_col}} as varchar)
             ),
             {{agg}}(cast({{table_alias}}.{{event_col}} as varchar))
         )
+{%- elif aggfunc == 'notnull' -%}
+max({{alias_col}} is not null)
 {%- else -%}
-{{aggfunc}}({{table_alias}}.{{column_name}})
+{{aggfunc}}({{alias_col}})
 {%- endif -%}
 
 {%- endmacro -%}

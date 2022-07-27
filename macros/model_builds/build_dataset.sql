@@ -18,6 +18,7 @@
     'secondary_events': {}
 } -%}
 
+{%- if primary_event_attributes is not none -%}
 {%- for pe in primary_event_attributes -%}
 {%- do sql_graph['primary_event_attributes'].append(
     {
@@ -28,6 +29,7 @@
 )
 -%}
 {%- endfor -%}
+{%- endif -%}
 
 {% if execute %}
 {% for metric in metrics %}
@@ -64,7 +66,8 @@
             {%- set metric_name = node.name -%}
             {%- set aggfunc = node.config.aggfunc -%}
             {%- set attribute_name = node.config.attribute -%}
-            {%- set parsed_attribute = thesis_dbt.parse_attribute(attribute_name) -%}
+            {%- set condition = node.config.condition -%}
+            {%- set parsed_attribute = thesis_dbt.parse_attribute(attribute_name, condition) -%}
             {%- set aggregation = thesis_dbt.compile_aggfunc(
                 column_name=metric_name,
                 aggfunc=aggfunc,
