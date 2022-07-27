@@ -33,7 +33,7 @@
     {%- if attributes_list is not none -%}
     '{' ||
         {% for attr in attributes_list -%}
-        {% if not loop.first -%}', '{%- endif -%}'"{{attr}}": "' || cast(decode({{attr}}, null, '', {{attr}}) as {{thesis_dbt.type_string}}){% if not loop.last %} ||{% endif %}
+        {% if not loop.first -%}', '{%- endif -%}'"{{attr}}": "' || decode(cast({{attr}} as {{thesis_dbt.type_string()}}), null, '', cast({{attr}} as {{thesis_dbt.type_string()}})){% if not loop.last %} ||{% endif %}
         {% endfor -%}
     || '}'
     {%- else -%}
