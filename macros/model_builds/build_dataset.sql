@@ -18,6 +18,7 @@
     'secondary_events': {}
 } -%}
 
+{%- if primary_event_attributes is not none -%}
 {%- for pe in primary_event_attributes -%}
 {%- do sql_graph['primary_event_attributes'].append(
     {
@@ -28,6 +29,7 @@
 )
 -%}
 {%- endfor -%}
+{%- endif -%}
 
 {% if execute %}
 {% for metric in metrics %}
