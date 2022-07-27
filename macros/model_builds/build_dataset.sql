@@ -66,7 +66,8 @@
             {%- set metric_name = node.name -%}
             {%- set aggfunc = node.config.aggfunc -%}
             {%- set attribute_name = node.config.attribute -%}
-            {%- set parsed_attribute = thesis_dbt.parse_attribute(attribute_name) -%}
+            {%- set condition = node.config.condition -%}
+            {%- set parsed_attribute = thesis_dbt.parse_attribute(attribute_name, condition) -%}
             {%- set aggregation = thesis_dbt.compile_aggfunc(
                 column_name=metric_name,
                 aggfunc=aggfunc,
