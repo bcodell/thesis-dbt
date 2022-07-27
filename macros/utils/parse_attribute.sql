@@ -1,30 +1,49 @@
-{%- macro parse_attribute(attribute_name, condition) -%}
-    {{ adapter.dispatch('parse_attribute', 'thesis_dbt')(attribute_name, condition) }}
+{%- macro parse_attribute(metric_node) -%}
+    {{ adapter.dispatch('parse_attribute', 'thesis_dbt')(metric_node) }}
 {%- endmacro -%}
 
-
-{%- macro default__parse_attribute(attribute_name, condition) -%}
+{%- macro default__parse_attribute(metric_node) -%}
+{%- set attribute_name = metric_node.config.get('attribute') -%}
+{%- set condition = metric_node.config.get('condition', none) -%}
 {%- if condition is none -%}
     {%- set condition_str = '' -%}
 {%- else -%}
     {%- set condition_str = ' '~condition -%}
 {%- endif -%}
-{%- if attribute_name in ['event_id', 'event_at', var('customer_id')] -%}
-{{attribute_name}}{{condition_str}}
+{%- set backup_value = metric_node.config.get('backup_value', none) -%}
+{%- if backup_value is none -%}
+    {%- set coalesce_prefix = '' -%}
+    {%- set coalesce_suffix = '' -%}
 {%- else -%}
-json_extract_path_text(attributes, '{{attribute_name}}'){{condition_str}}
+    {%- set coalesce_prefix = 'coalesce(' -%}
+    {%- set coalesce_suffix = ', '~backup_value~')' -%}
+{%- endif -%}
+{%- if attribute_name in ['event_id', 'event_at', var('customer_id')] -%}
+{{coalesce_prefix}}{{attribute_name}}{{coalesce_suffix}}{{condition_str}}
+{%- else -%}
+{{coalesce_prefix}}nullif(json_extract_path_text(attributes, '{{attribute_name}}'), ''){{coalesce_suffix}}{{condition_str}}
 {%- endif -%}
 {%- endmacro -%}
 
-{%- macro snowflake__parse_attribute(attribute_name, condition) -%}
+{%- macro snowflake__parse_attribute(metric_node) -%}
+{%- set attribute_name = metric_node.config.get('attribute') -%}
+{%- set condition = metric_node.config.get('condition', none) -%}
 {%- if condition is none -%}
     {%- set condition_str = '' -%}
 {%- else -%}
     {%- set condition_str = ' '~condition -%}
 {%- endif -%}
-{%- if attribute_name in ['event_id', 'event_at', var('customer_id')] -%}
-{{attribute_name}}{{condition_str}}
+{%- set backup_value = metric_node.config.get('backup_value', none) -%}
+{%- if backup_value is none -%}
+    {%- set coalesce_prefix = '' -%}
+    {%- set coalesce_suffix = '' -%}
 {%- else -%}
-to_varchar(get_path(attributes, '{{attribute_name}}')){{condition_str}}
+    {%- set coalesce_prefix = 'coalesce(' -%}
+    {%- set coalesce_suffix = ', '~backup_value~')' -%}
+{%- endif -%}
+{%- if attribute_name in ['event_id', 'event_at', var('customer_id')] -%}
+{{coalesce_prefix}}{{attribute_name}}{{coalesce_suffix}}{{condition_str}}
+{%- else -%}
+{{coalesce_prefix}}nullif(to_varchar(get_path(attributes, '{{attribute_name}}')), ''){{coalesce_suffix}}{{condition_str}}
 {%- endif -%}
 {%- endmacro -%}
