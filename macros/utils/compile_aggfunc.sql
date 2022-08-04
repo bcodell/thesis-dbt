@@ -9,12 +9,15 @@
 {%- set aggfunc_map = {'first_value': 'min', 'last_value': 'max'} -%}
 {%- set agg = aggfunc_map[aggfunc] -%}
 {%- set event_col = event_name~'_event_at' -%}
-ltrim(
+{%- set delimiter = ';.,;' -%}
+split_part(
             {{agg}}(
                 cast({{table_alias}}.{{event_col}} as varchar)
+                || '{{delimiter}}'
                 || cast({{alias_col}} as varchar)
             ),
-            {{agg}}(cast({{table_alias}}.{{event_col}} as varchar))
+            '{{delimiter}}',
+            2
         )
 {%- elif aggfunc == 'notnull' -%}
 max({{alias_col}} is not null)
