@@ -10,12 +10,16 @@
 {{secondary_alias}}.{{secondary_event}}_event_at >= coalesce(enriched.previous_{{primary_event}}_event_at, {{thesis_dbt.early_timestamp()}})
 {%- elif timestamp == 'current' -%}
 {{secondary_alias}}.{{secondary_event}}_event_at > coalesce(enriched.{{primary_event}}_event_at, {{thesis_dbt.early_timestamp()}})
+{%- elif timestamp not in ['after', 'previous', 'current'] -%}
+{{secondary_alias}}.{{secondary_event}}_event_at >= {{timestamp}}
 {%- endif -%}
 {%- elif relative == 'before' -%}
 {%- if timestamp == 'next' -%}
 {{secondary_alias}}.{{secondary_event}}_event_at <= coalesce(enriched.next_{{primary_event}}_event_at, {{thesis_dbt.current_timestamp()}})
 {%- elif timestamp == 'current' -%}
 {{secondary_alias}}.{{secondary_event}}_event_at < coalesce(enriched.{{primary_event}}_event_at, {{thesis_dbt.current_timestamp()}})
+{%- elif timestamp not in ['after', 'previous', 'current'] -%}
+{{secondary_alias}}.{{secondary_event}}_event_at <= {{timestamp}}
 {%- endif -%}
 {%- endif -%}
 {%- endif -%}
