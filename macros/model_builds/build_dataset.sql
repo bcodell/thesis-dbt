@@ -147,10 +147,10 @@ with {{sql_graph['primary_event_cte']}} as (
     select
         {% for sc in standard_columns -%}
         {%- if not loop.first -%}, {% endif -%}{{sc}} as {{secondary_event}}_{{sc}}
-        {% endfor %}
+        {% endfor -%}
         {%- for j in se['joins'].keys() -%}
         {%- set join_reqs = se['joins'][j] -%}
-        {%- for sm in join_reqs['metrics'] -%}
+        {% for sm in join_reqs['metrics'] -%}
         , {{sm['parsed_attribute']}} as {{sm['metric_name']}}
         {%- endfor -%}
         {% endfor %}
