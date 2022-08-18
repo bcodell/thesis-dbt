@@ -158,26 +158,20 @@ with {{sql_graph['primary_event_cte']}} as (
     where event_name = '{{secondary_event}}'
 )
 {% endfor -%}
-, joined as (
+
+{%- for secondary_event in sql_graph['secondary_events'].keys() -%}
+{%- set se = sql_graph['secondary_events'][secondary_event] -%}
+{%- for j in se['joins'].keys() -%}
+{%- set join_reqs = se['joins'][j] -%}
+, {{join_reqs['table_alias']}} as (
     select
-        {%- for ec in enriched_columns %}
-        {% if not loop.first -%}, {% endif -%}enriched.{{ec}}
-        {%- endfor %}
-        {%- for secondary_event in sql_graph['secondary_events'].keys() -%}
-        {%- set se = sql_graph['secondary_events'][secondary_event] -%}
-        {%- for j in se['joins'].keys() -%}
-        {%- set join_reqs = se['joins'][j] -%}
+        enriched.{{sql_graph['primary_event']}}_{{ var('customer_id') }}
+        , enriched.{{sql_graph['primary_event']}}_event_id
         {%- for sm in join_reqs['metrics'] %}
         , {{sm['aggregation']}} as {{sm['metric_name']}}
-        {%- endfor -%}
-        {%- endfor -%}
-        {% endfor %}
+        {%- endfor %}
     from enriched
-    {% for secondary_event in sql_graph['secondary_events'].keys() -%}
-    {%- set se = sql_graph['secondary_events'][secondary_event] -%}
-    {% for j in se['joins'].keys() %}
-    {%- set join_reqs = se['joins'][j] -%}
-    {%- set alias = join_reqs['table_alias'] -%}
+    {%- set alias = join_reqs['table_alias'] %}
     left join {{se['cte']}} {{alias}}
         on enriched.{{sql_graph['primary_event']}}_{{ var('customer_id') }} = {{alias}}.{{secondary_event}}_{{ var('customer_id') }}
         {%- if join_reqs['after_ts'] is not none %}
@@ -198,15 +192,40 @@ with {{sql_graph['primary_event_cte']}} as (
             timestamp=join_reqs['before_ts']
         )}}
         {%- endif %}
-    {% endfor %}
-    {%- endfor -%}
     group by
         {%- for ec in enriched_columns %}
         {% if not loop.first -%}, {% endif -%}enriched.{{ec}}
         {%- endfor %}
 )
-select *
-from joined
+{% endfor -%}
+{%- endfor -%}
+, joined_full as (
+    select
+        {%- for ec in enriched_columns %}
+        {% if not loop.first -%}, {% endif -%}enriched.{{ec}}
+        {%- endfor %}
+        {%- for secondary_event in sql_graph['secondary_events'].keys() -%}
+        {%- set se = sql_graph['secondary_events'][secondary_event] -%}
+        {%- for j in se['joins'].keys() -%}
+        {%- set join_reqs = se['joins'][j] -%}
+        {%- for sm in join_reqs['metrics'] %}
+        , {{join_reqs['table_alias']}}.{{sm['metric_name']}}
+        {%- endfor -%}
+        {%- endfor -%}
+        {% endfor %}
+    from enriched
+    {% for secondary_event in sql_graph['secondary_events'].keys() -%}
+    {%- set se = sql_graph['secondary_events'][secondary_event] -%}
+    {% for j in se['joins'].keys() %}
+    {%- set join_reqs = se['joins'][j] -%}
+    {%- set alias = join_reqs['table_alias'] -%}
+    left join {{alias}}
+        on enriched.{{sql_graph['primary_event']}}_event_id = {{alias}}.{{sql_graph['primary_event']}}_event_id
+    {% endfor %}
+    {%- endfor -%}
 
+)
+select *
+from joined_full
 
 {% endmacro %}
