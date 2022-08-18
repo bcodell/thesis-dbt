@@ -19,9 +19,9 @@
     {%- set coalesce_suffix = ', '~backup_value~')' -%}
 {%- endif -%}
 {%- if attribute_name in ['event_id', 'event_at', var('customer_id')] -%}
-{{coalesce_prefix}}{{attribute_name}}{{coalesce_suffix}}{{condition_str}}
+{{coalesce_prefix}}{{attribute_name}}{{condition_str}}{{coalesce_suffix}}
 {%- else -%}
-{{coalesce_prefix}}nullif(json_extract_path_text(attributes, '{{attribute_name}}'), ''){{coalesce_suffix}}{{condition_str}}
+{{coalesce_prefix}}nullif(json_extract_path_text(attributes, '{{attribute_name}}'), ''){{condition_str}}{{coalesce_suffix}}
 {%- endif -%}
 {%- endmacro -%}
 
@@ -42,8 +42,8 @@
     {%- set coalesce_suffix = ', '~backup_value~')' -%}
 {%- endif -%}
 {%- if attribute_name in ['event_id', 'event_at', var('customer_id')] -%}
-{{coalesce_prefix}}{{attribute_name}}{{coalesce_suffix}}{{condition_str}}
+{{coalesce_prefix}}{{attribute_name}}{{condition_str}}{{coalesce_suffix}}
 {%- else -%}
-{{coalesce_prefix}}nullif(to_varchar(get_path(attributes, '{{attribute_name}}')), ''){{coalesce_suffix}}{{condition_str}}
+{{coalesce_prefix}}nullif(to_varchar(get_path(attributes, '{{attribute_name}}')), ''){{condition_str}}{{coalesce_suffix}}
 {%- endif -%}
 {%- endmacro -%}
