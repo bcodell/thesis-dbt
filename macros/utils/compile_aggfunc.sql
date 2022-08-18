@@ -22,7 +22,7 @@ split_part(
 {%- elif aggfunc == 'notnull' -%}
 max({{alias_col}} is not null)
 {%- elif aggfunc == 'listagg' -%}
-{{ thesis_dbt.aggfunc_listagg(alias_col, ', ') }}
+{{ thesis_dbt.aggfunc_listagg(alias_col) }}
 {%- else -%}
 {{aggfunc}}({{alias_col}})
 {%- endif -%}
