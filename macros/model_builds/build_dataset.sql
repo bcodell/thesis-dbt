@@ -52,7 +52,7 @@
             {%- do sql_graph['join_requirements'].append(after_ts) -%}
             {%- do sql_graph['join_requirements'].append(before_ts) -%}
             {%- set join_key = (after_ts, before_ts) -%}
-            {%- set table_alias = secondary_event~'_'~after_ts~'_'~before_ts -%}
+            {%- set table_alias = secondary_event~'_'~thesis_dbt.remove_punctuation(after_ts)~'_'~thesis_dbt.remove_punctuation(before_ts) -%}
             {%- if join_key not in sql_graph['secondary_events'][secondary_event]['joins'].keys() -%}
                 {%- do sql_graph['secondary_events'][secondary_event]['joins'].update({
                     join_key: {

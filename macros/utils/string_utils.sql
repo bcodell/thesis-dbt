@@ -96,3 +96,18 @@ deprecated in the future. The {}.{} model triggered this warning. \
 {{thesis_dbt.hash(thesis_dbt.concat(fields))}}
 
 {%- endmacro -%}
+
+{%- macro remove_punctuation(s) -%}
+  {{ return(adapter.dispatch('remove_punctuation', 'thesis_dbt')(s)) }}
+{%- endmacro -%}
+
+{%- macro default__remove_punctuation(s) -%}
+{%- set open_bracket = '[' -%}
+{%- set close_bracket = ']' -%}
+{%- set punc = ['!', ' ', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '\\', '^', '`', '{', '|', '}', '~', '{{open_bracket}}', '{{close_bracket}}'] -%}
+{%- set clean_str = [s|string] -%}
+{%- for p in punc -%}
+{%- do clean_str.append(clean_str[-1].replace(p,'')) -%}
+{%- endfor -%}
+{{clean_str[-1]}}
+{%- endmacro -%}
