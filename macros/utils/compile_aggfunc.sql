@@ -23,8 +23,8 @@ split_part(
 max({{alias_col}} is not null)
 {%- elif aggfunc == 'listagg' -%}
 {{ thesis_dbt.aggfunc_listagg(alias_col) }}
-{%- elif aggfunc == 'sumbool' -%}
-{{ thesis_dbt.aggfunc_sumbool(alias_col) }}
+{%- elif aggfunc == 'sum_bool' -%}
+{{ thesis_dbt.aggfunc_sum_bool(alias_col) }}
 {%- else -%}
 {{aggfunc}}({{alias_col}})
 {%- endif -%}
