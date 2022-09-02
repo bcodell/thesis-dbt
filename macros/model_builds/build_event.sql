@@ -10,11 +10,12 @@ build_event: Compiles a final select statement in a standardized format so that 
 {% endmacro %}
 
 
-{% macro default__build_event(cte, attributes=none, event_at_column="event_at") %}
+{% macro default__build_event(cte, attributes=none, event_at_column="event_at", event_stream=none) %}
+{%- set customer_id = var('customer_id', var('thesis_dbt')[event_stream]['customer_id']) -%}
 
 select
-    {{ thesis_dbt.surrogate_key([var('customer_id'), event_at_column, "'"~this.name~"'"]) }} as event_id
-    , {{ var('customer_id') }} as {{ var('customer_id') }}
+    {{ thesis_dbt.surrogate_key([customer_id, event_at_column, "'"~this.name~"'"]) }} as event_id
+    , {{ customer_id }} as {{ customer_id }}
     , '{{ this.name }}' as event_name
     , {{event_at_column}} as event_at
     , {{ thesis_dbt.attributes_to_json(attributes) }} as attributes
