@@ -3,9 +3,10 @@
 {% endmacro %}
 
 {% macro default__build_dataset(event_stream, primary_event, primary_event_attributes, metrics) %}
+{%- set customer_id = var('customer_id', var('thesis_dbt')[event_stream]['customer_id']) -%}
 {% set standard_columns = [
     'event_id',
-    var('customer_id'),
+    customer_id,
     'event_at'
 ]
 %}
@@ -128,12 +129,12 @@ with {{sql_graph['primary_event_cte']}} as (
     from {{sql_graph['primary_event_cte']}} t1
     {% if 'previous' in sql_graph['join_requirements'] -%}
     left join {{sql_graph['primary_event_cte']}} t2
-        on t1.{{primary_event}}_{{ var('customer_id') }} = t2.{{primary_event}}_{{ var('customer_id') }}
+        on t1.{{primary_event}}_{{customer_id}} = t2.{{primary_event}}_{{customer_id}}
         and t1.{{primary_event}}_event_at > t2.{{primary_event}}_event_at
     {%- endif %}
     {%- if 'next' in sql_graph['join_requirements'] -%}
     left join {{sql_graph['primary_event_cte']}} t3
-        on t1.{{primary_event}}_{{ var('customer_id') }} = t3.{{primary_event}}_{{ var('customer_id') }}
+        on t1.{{primary_event}}_{{customer_id}} = t3.{{primary_event}}_{{customer_id}}
         and t1.{{primary_event}}_event_at < t3.{{primary_event}}_event_at
     {%- endif %}
     group by
@@ -165,7 +166,7 @@ with {{sql_graph['primary_event_cte']}} as (
 {%- set join_reqs = se['joins'][j] -%}
 , {{join_reqs['table_alias']}} as (
     select
-        enriched.{{sql_graph['primary_event']}}_{{ var('customer_id') }}
+        enriched.{{sql_graph['primary_event']}}_{{customer_id}}
         , enriched.{{sql_graph['primary_event']}}_event_id
         {%- for sm in join_reqs['metrics'] %}
         , {{sm['aggregation']}} as {{sm['metric_name']}}
@@ -173,7 +174,7 @@ with {{sql_graph['primary_event_cte']}} as (
     from enriched
     {%- set alias = join_reqs['table_alias'] %}
     left join {{se['cte']}} {{alias}}
-        on enriched.{{sql_graph['primary_event']}}_{{ var('customer_id') }} = {{alias}}.{{secondary_event}}_{{ var('customer_id') }}
+        on enriched.{{sql_graph['primary_event']}}_{{customer_id}} = {{alias}}.{{secondary_event}}_{{customer_id}}
         {%- if join_reqs['after_ts'] is not none %}
         and {{thesis_dbt.compile_timestamp_join(
             primary_event=sql_graph['primary_event'],

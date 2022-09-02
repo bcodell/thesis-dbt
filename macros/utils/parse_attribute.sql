@@ -3,6 +3,8 @@
 {%- endmacro -%}
 
 {%- macro default__parse_attribute(metric_node) -%}
+{%- set event_stream = metric_node.config.get('event_stream') -%}
+{%- set customer_id = var('customer_id', var('thesis_dbt')[event_stream]['customer_id']) -%}
 {%- set attribute_name = metric_node.config.get('attribute') -%}
 {%- set condition = metric_node.config.get('condition', none) -%}
 {%- if condition is none -%}
@@ -18,7 +20,7 @@
     {%- set coalesce_prefix = 'coalesce(' -%}
     {%- set coalesce_suffix = ', '~backup_value~')' -%}
 {%- endif -%}
-{%- if attribute_name in ['event_id', 'event_at', var('customer_id')] -%}
+{%- if attribute_name in ['event_id', 'event_at', customer_id] -%}
 {{coalesce_prefix}}{{attribute_name}}{{condition_str}}{{coalesce_suffix}}
 {%- else -%}
 {{coalesce_prefix}}nullif(json_extract_path_text(attributes, '{{attribute_name}}'), ''){{condition_str}}{{coalesce_suffix}}
@@ -26,6 +28,8 @@
 {%- endmacro -%}
 
 {%- macro snowflake__parse_attribute(metric_node) -%}
+{%- set event_stream = metric_node.config.get('event_stream') -%}
+{%- set customer_id = var('customer_id', var('thesis_dbt')[event_stream]['customer_id']) -%}
 {%- set attribute_name = metric_node.config.get('attribute') -%}
 {%- set condition = metric_node.config.get('condition', none) -%}
 {%- if condition is none -%}
@@ -41,7 +45,7 @@
     {%- set coalesce_prefix = 'coalesce(' -%}
     {%- set coalesce_suffix = ', '~backup_value~')' -%}
 {%- endif -%}
-{%- if attribute_name in ['event_id', 'event_at', var('customer_id')] -%}
+{%- if attribute_name in ['event_id', 'event_at', customer_id] -%}
 {{coalesce_prefix}}{{attribute_name}}{{condition_str}}{{coalesce_suffix}}
 {%- else -%}
 {{coalesce_prefix}}nullif(to_varchar(get_path(attributes, '{{attribute_name}}')), ''){{condition_str}}{{coalesce_suffix}}

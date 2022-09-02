@@ -3,6 +3,7 @@
 {% endmacro %}
 
 {% macro default__build_metric(event_stream) %}
+{%- do config.update({'event_stream': event_stream}) -%}
 {%- set is_metric = config.require('is_metric') -%}
 {%- set event_name = config.require('event_name') -%}
 {%- set attribute = config.require('attribute') -%}
